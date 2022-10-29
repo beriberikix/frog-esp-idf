@@ -7,7 +7,7 @@
 #include <esp_err.h>
 #include <esp_log.h>
 
-#if CONFIG_EXAMPLE_I2C_ONBOARD_PULLUP_GPIO_OUTPUT > -1
+#if CONFIG_FROG_I2C_ONBOARD_PULLUP_GPIO_OUTPUT > -1
 #include <driver/gpio.h>
 #endif
 
@@ -51,7 +51,7 @@ void lc709203f_test(void *pvParameters)
 
     memset(&lc, 0, sizeof(lc));
 
-    ESP_ERROR_CHECK(lc709203f_init_desc(&lc, 0, CONFIG_EXAMPLE_I2C_MASTER_SDA, CONFIG_EXAMPLE_I2C_MASTER_SCL));
+    ESP_ERROR_CHECK(lc709203f_init_desc(&lc, 0, CONFIG_FROG_I2C_MASTER_SDA, CONFIG_FROG_I2C_MASTER_SCL));
 
     initialize_lc709203f(&lc);
 
@@ -62,7 +62,7 @@ void lc709203f_test(void *pvParameters)
         ESP_ERROR_CHECK(lc709203f_get_cell_ite(&lc, &ite));
         // Temperature in I2C mode. Temperature should be the same as configured.
         ESP_ERROR_CHECK(lc709203f_get_cell_temperature_celsius(&lc, &temperature));
-        ESP_LOGI(TAG, "Temp: %.1f\tVoltage: %.2f\tRSOC: %d%%\tITE: %.1f%%", temperature, voltage / 1000.0, rsoc,
+        ESP_LOGI("Battery", "Temp: %.1f\tVoltage: %.2f\tRSOC: %d%%\tITE: %.1f%%", temperature, voltage / 1000.0, rsoc,
             ite / 10.0);
         vTaskDelay(pdMS_TO_TICKS(10000));
     }
@@ -70,17 +70,17 @@ void lc709203f_test(void *pvParameters)
 
 void app_main(void)
 {
-#if CONFIG_EXAMPLE_I2C_ONBOARD_PULLUP_GPIO_OUTPUT > -1
+#if CONFIG_FROG_I2C_ONBOARD_PULLUP_GPIO_OUTPUT > -1
     /// Adafruit Feather esp32ss/s3 needs to set GPIO7 as HIGH level output to enable onboard I2C pull ups
     /// We needn't internal pull ups.
     gpio_config_t io_conf = {};
-    io_conf.pin_bit_mask = (1 << CONFIG_EXAMPLE_I2C_ONBOARD_PULLUP_GPIO_OUTPUT);
+    io_conf.pin_bit_mask = (1 << CONFIG_FROG_I2C_ONBOARD_PULLUP_GPIO_OUTPUT);
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
     io_conf.pull_down_en = 0;
     io_conf.pull_up_en = 0;
     gpio_config(&io_conf);
-    gpio_set_level(CONFIG_EXAMPLE_I2C_ONBOARD_PULLUP_GPIO_OUTPUT, CONFIG_EXAMPLE_I2C_ONBOARD_PULLUP_GPIO_OUTPUT_LEVEL);
+    gpio_set_level(CONFIG_FROG_I2C_ONBOARD_PULLUP_GPIO_OUTPUT, CONFIG_FROG_I2C_ONBOARD_PULLUP_GPIO_OUTPUT_LEVEL);
 #endif
 
     ESP_ERROR_CHECK(i2cdev_init());
