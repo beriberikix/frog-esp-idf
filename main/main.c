@@ -33,13 +33,13 @@ static esp_err_t initialize_lc709203f(i2c_dev_t *lc)
 
     uint16_t value = 0;
     ESP_ERROR_CHECK(lc709203f_get_power_mode(lc, (lc709203f_power_mode_t *)&value));
-    ESP_LOGI(TAG, "Power Mode: 0x%X", value);
+    ESP_LOGI(TAG, "Power Mode (lc709203f): 0x%X", value);
     ESP_ERROR_CHECK(lc709203f_get_apa(lc, (uint8_t *)&value));
-    ESP_LOGI(TAG, "APA: 0x%X", value);
+    ESP_LOGI(TAG, "APA (lc709203f): 0x%X", value);
     ESP_ERROR_CHECK(lc709203f_get_battery_profile(lc, (lc709203f_battery_profile_t *)&value));
-    ESP_LOGI(TAG, "Battery Profile: 0x%X", value);
+    ESP_LOGI(TAG, "Battery Profile (lc709203f): 0x%X", value);
     ESP_ERROR_CHECK(lc709203f_get_temp_mode(lc, (lc709203f_temp_mode_t *)&value));
-    ESP_LOGI(TAG, "Temp Mode: 0x%X", value);
+    ESP_LOGI(TAG, "Temp Mode (lc709203f): 0x%X", value);
 
     return ESP_OK;
 }
@@ -79,7 +79,6 @@ void task(void *pvParameters)
     bool data_ready;
 
     memset(&lc, 0, sizeof(lc));
-
     ESP_ERROR_CHECK(lc709203f_init_desc(&lc, 0, CONFIG_FROG_I2C_MASTER_SDA, CONFIG_FROG_I2C_MASTER_SCL));
     initialize_lc709203f(&lc);
 
@@ -94,8 +93,12 @@ void task(void *pvParameters)
         ESP_ERROR_CHECK(lc709203f_get_cell_ite(&lc, &ite));
         // Temperature in I2C mode. Temperature should be the same as configured.
         ESP_ERROR_CHECK(lc709203f_get_cell_temperature_celsius(&lc, &bat_temp));
-        ESP_LOGI("Battery", "Temp: %.1f\tVoltage: %.2f\tRSOC: %d%%\tITE: %.1f%%", bat_temp, voltage / 1000.0, rsoc,
-            ite / 10.0);
+        // ESP_LOGI("Battery (lc709203f)", "Temp  (lc709203f): %.1f\tVoltage (lc709203f): %.2f\tRSOC (lc709203f): %d%%\tITE (lc709203f): %.1f%%", bat_temp, voltage / 1000.0, rsoc,
+        //          ite / 10.0);
+        ESP_LOGI(TAG, "Temp (lc709203f): %.1f", bat_temp);
+        ESP_LOGI(TAG, "Voltage (lc709203f): %.2f", voltage / 1000.0);
+        ESP_LOGI(TAG, "RSOC (lc709203f): %d%%", rsoc);
+        ESP_LOGI(TAG, "ITE (lc709203f): %.1f%%", ite / 10.0);
 
         scd30_get_data_ready_status(&scd, &data_ready);
         if (data_ready)
@@ -113,9 +116,9 @@ void task(void *pvParameters)
                 continue;
             }
 
-            ESP_LOGI(TAG, "CO2: %.0f ppm", co2);
-            ESP_LOGI(TAG, "Temperature: %.2f °C", temperature);
-            ESP_LOGI(TAG, "Humidity: %.2f %%", humidity);
+            ESP_LOGI(TAG, "CO2 (scd30): %.0f ppm", co2);
+            ESP_LOGI(TAG, "Temperature (scd30): %.2f °C", temperature);
+            ESP_LOGI(TAG, "Humidity (scd30): %.2f %%", humidity);
         }
 
         vTaskDelay(pdMS_TO_TICKS(10000));
