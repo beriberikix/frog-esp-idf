@@ -65,26 +65,16 @@ static esp_err_t initialize_scd30(i2c_dev_t *scd)
     return ESP_OK;
 }
 
-void task(void *pvParameters)
+void lc709203f_task(void *pvParameters)
 {
     i2c_dev_t lc;
-    i2c_dev_t scd;
 
-    // lc709203f
     uint16_t voltage = 0, rsoc = 0, ite = 0;
     float bat_temp = -274;
-
-    // scd30
-    float co2, temperature, humidity;
-    bool data_ready;
 
     memset(&lc, 0, sizeof(lc));
     ESP_ERROR_CHECK(lc709203f_init_desc(&lc, 0, CONFIG_FROG_I2C_MASTER_SDA, CONFIG_FROG_I2C_MASTER_SCL));
     initialize_lc709203f(&lc);
-
-    memset(&scd, 0, sizeof(scd));
-    ESP_ERROR_CHECK(scd30_init_desc(&scd, 0, CONFIG_FROG_I2C_MASTER_SDA, CONFIG_FROG_I2C_MASTER_SCL));
-    initialize_scd30(&scd);
 
     while (1)
     {
@@ -93,13 +83,29 @@ void task(void *pvParameters)
         ESP_ERROR_CHECK(lc709203f_get_cell_ite(&lc, &ite));
         // Temperature in I2C mode. Temperature should be the same as configured.
         ESP_ERROR_CHECK(lc709203f_get_cell_temperature_celsius(&lc, &bat_temp));
-        // ESP_LOGI("Battery (lc709203f)", "Temp  (lc709203f): %.1f\tVoltage (lc709203f): %.2f\tRSOC (lc709203f): %d%%\tITE (lc709203f): %.1f%%", bat_temp, voltage / 1000.0, rsoc,
-        //          ite / 10.0);
+
         ESP_LOGI(TAG, "Temp (lc709203f): %.1f", bat_temp);
         ESP_LOGI(TAG, "Voltage (lc709203f): %.2f", voltage / 1000.0);
         ESP_LOGI(TAG, "RSOC (lc709203f): %d%%", rsoc);
         ESP_LOGI(TAG, "ITE (lc709203f): %.1f%%", ite / 10.0);
 
+        vTaskDelay(pdMS_TO_TICKS(10000));
+    }
+}
+
+void scd30_task(void *pvParameters)
+{
+    i2c_dev_t scd;
+
+    float co2, temperature, humidity;
+    bool data_ready;
+
+    memset(&scd, 0, sizeof(scd));
+    ESP_ERROR_CHECK(scd30_init_desc(&scd, 0, CONFIG_FROG_I2C_MASTER_SDA, CONFIG_FROG_I2C_MASTER_SCL));
+    initialize_scd30(&scd);
+
+    while (1)
+    {
         scd30_get_data_ready_status(&scd, &data_ready);
         if (data_ready)
         {
@@ -141,6 +147,6 @@ void app_main(void)
 #endif
 
     ESP_ERROR_CHECK(i2cdev_init());
-    xTaskCreate(task, "sense", configMINIMAL_STACK_SIZE * 8, NULL, 5, NULL);
-    // xTaskCreate(scd30_test, "scd30_test", configMINIMAL_STACK_SIZE * 8, NULL, 5, NULL);
+    xTaskCreate(lc709203f_task, "lc709203f", configMINIMAL_STACK_SIZE * 8, NULL, 5, NULL);
+    xTaskCreate(scd30_task, "scd30", configMINIMAL_STACK_SIZE * 8, NULL, 6, NULL);
 }
