@@ -15,6 +15,11 @@
 #include "scd30.h"
 #include "dps310.h"
 
+#include "nvs.h"
+#include "wifi.h"
+#include "shell.h"
+#include "golioth.h"
+
 static const char *TAG = "Frog";
 
 static esp_err_t initialize_lc709203f(i2c_dev_t *lc)
@@ -291,6 +296,13 @@ void app_main(void)
     gpio_config(&io_conf);
     gpio_set_level(CONFIG_FROG_I2C_ONBOARD_PULLUP_GPIO_OUTPUT, CONFIG_FROG_I2C_ONBOARD_PULLUP_GPIO_OUTPUT_LEVEL);
 #endif
+
+    // Initialize NVS first. For this example, it is assumed that WiFi and Golioth
+    // PSK credentials are stored in NVS.
+    nvs_init();
+
+    // Create a background shell/CLI task (type "help" to see a list of supported commands)
+    shell_start();
 
     ESP_ERROR_CHECK(i2cdev_init());
     xTaskCreate(task, "sense", configMINIMAL_STACK_SIZE * 8, NULL, 5, NULL);

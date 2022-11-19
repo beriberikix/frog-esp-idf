@@ -4,8 +4,9 @@ set(includes
 
 set(srcs
     "main.c"
-    "nvs.c"
+    "shell.c"
     "wifi.c"
+    "nvs.c"
 )
 
 set(deps
