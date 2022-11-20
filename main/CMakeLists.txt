@@ -2,7 +2,7 @@ idf_component_register(
     INCLUDE_DIRS
         "."
     SRCS
-        "app_main.c"
+        "main.c"
         "shell.c"
         "wifi.c"
         "nvs.c"
