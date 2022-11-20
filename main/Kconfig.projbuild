@@ -3,7 +3,7 @@ menu "Frog configuration"
         int "SCL GPIO Number"
         default 5 if IDF_TARGET_ESP8266
         default 6 if IDF_TARGET_ESP32C3
-        default 4 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+        default 19 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
         help
             GPIO number for I2C Master clock line.
 
@@ -11,7 +11,7 @@ menu "Frog configuration"
         int "SDA GPIO Number"
         default 4 if IDF_TARGET_ESP8266
         default 5 if IDF_TARGET_ESP32C3
-        default 3 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+        default 18 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
         help
             GPIO number for I2C Master data line.
 
