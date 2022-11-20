@@ -9,4 +9,4 @@ Implemented:
 
 ## Notes
 
-The Feather ESP32-S3 has a batery monitor and I2C power enable pin on IO07. SCL is on IO04 & SDA is on IO03. CMake assumes `esp-idf-lib` is at `~/esp/esp-idf-lib`.
+The Feather ESP32-S3 has a batery monitor and I2C power enable pin on IO07. SCL is on IO04 & SDA is on IO03. Use `git submodule update --init --recursive` to fetch libraries as submodules.
